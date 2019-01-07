@@ -15,23 +15,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.metron.parsers.integration;
 
-import org.apache.metron.parsers.integration.validation.SampleDataValidation;
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
-import java.util.ArrayList;
-import java.util.List;
+@Injectable()
+export class AppConfigService {
 
-public class Syslog3164ParserIntegrationTest extends ParserIntegrationTest {
-  @Override
-  String getSensorType() {
-    return "syslog3164";
+  private static appConfigStatic;
+
+  constructor(private http: HttpClient) { }
+
+  loadAppConfig() {
+    return this.http.get('assets/app-config.json')
+            // APP_INITIALIZER only supports promises
+            .toPromise()
+            .then(data => {
+              AppConfigService.appConfigStatic = data;
+            });
   }
 
-  @Override
-  List<ParserValidation> getValidations() {
-    return new ArrayList<ParserValidation>() {{
-      add(new SampleDataValidation());
-    }};
+  getApiRoot() {
+    return AppConfigService.appConfigStatic['apiRoot'];
+  };
+
+  getLoginPath() {
+    return AppConfigService.appConfigStatic['loginPath'];
+  }
+
+  static getAppConfigStatic() {
+    return AppConfigService.appConfigStatic;
   }
 }
